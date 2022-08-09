@@ -213,7 +213,7 @@ private:
     bool lidar_checks_done_ = false;
     bool lidar_draw_debug_points_ = false;
     bool sidescansonar_checks_done_ = false;
-    bool lidescansonar_draw_debug_points_ = false;
+    bool sidescansonar_draw_debug_points_ = false;
     static ASimModeBase* SIMMODE;
 
 private:
