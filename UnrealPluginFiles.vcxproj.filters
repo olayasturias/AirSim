@@ -108,6 +108,9 @@
     <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealLidarSensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealSidescanSonarSensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Unreal\Plugins\AirSim\Source\TextureShuffleActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -210,6 +213,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealLidarSensor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealSidescanSonarSensor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

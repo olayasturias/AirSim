@@ -420,6 +420,12 @@ class LidarData(MsgpackMixin):
     pose = Pose()
     segmentation = 0
 
+class SidescanSonarData(MsgpackMixin):
+    point_cloud = 0.0
+    time_stamp = np.uint64(0)
+    pose = Pose()
+    segmentation = 0
+
 class ImuData(MsgpackMixin):
     time_stamp = np.uint64(0)
     orientation = Quaternionr()

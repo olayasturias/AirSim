@@ -125,6 +125,7 @@
     <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealImageCapture.cpp" />
     <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealDistanceSensor.cpp" />
     <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealLidarSensor.cpp" />
+    <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealSidescanSonarSensor.cpp" />
     <ClCompile Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealSensorFactory.cpp" />
     <ClCompile Include="unreal\plugins\airsim\source\VehicleCameraConnector.cpp" />
     <ClCompile Include="Unreal\Plugins\AirSim\Source\VehicleSimApi.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealImageCapture.h" />
     <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealDistanceSensor.h" />
     <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealLidarSensor.h" />
+    <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealSidescanSonarSensor.h" />
     <ClInclude Include="Unreal\Plugins\AirSim\Source\UnrealSensors\UnrealSensorFactory.h" />
     <ClInclude Include="unreal\plugins\airsim\source\VehicleCameraConnector.h" />
     <ClInclude Include="unreal\plugins\airsim\source\VehiclePawnWrapper.h" />

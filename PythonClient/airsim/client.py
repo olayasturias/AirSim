@@ -906,7 +906,7 @@ class VehicleClient:
 
     def simGetLidarSegmentation(self, lidar_name = '', vehicle_name = ''):
         """
-        NOTE: Deprecated API, use `getLidarData()` API instead
+        NOTE: Deprecated API, use `getSidescanSonarData()` API instead
         Returns Segmentation ID of each point's collided object in the last Lidar update
 
         Args:
@@ -918,6 +918,32 @@ class VehicleClient:
         """
         logging.warning("simGetLidarSegmentation API is deprecated, use getLidarData() API instead")
         return self.getLidarData(lidar_name, vehicle_name).segmentation
+
+    def getSidescanSonarData(self, sidescansonar_name = '', vehicle_name = ''):
+        """
+        Args:
+            sidescansonar_name (str, optional): Name of SidescanSonar to get data from, specified in settings.json
+            vehicle_name (str, optional): Name of vehicle to which the sensor corresponds to
+
+        Returns:
+            SidescanSonarData:
+        """
+        return SidescanSonarData.from_msgpack(self.client.call('getSidescanSonarData', sidescansonar_name, vehicle_name))
+
+    def simGetSidescanSonarSegmentation(self, sidescansonar_name = '', vehicle_name = ''):
+        """
+        NOTE: Deprecated API, use `getSidescanSonarData()` API instead
+        Returns Segmentation ID of each point's collided object in the last SidescanSonar update
+
+        Args:
+            sidescansonar_name (str, optional): Name of SidescanSonar sensor
+            vehicle_name (str, optional): Name of the vehicle wth the sensor
+
+        Returns:
+            list[int]: Segmentation IDs of the objects
+        """
+        logging.warning("simGetSidescanSonarSegmentation API is deprecated, use getSidescanSonarData() API instead")
+        return self.getSidescanSonarData(sidescansonar_name, vehicle_name).segmentation
 
 #Plotting APIs
     def simFlushPersistentMarkers(self):

@@ -642,6 +642,41 @@ namespace airlib_rpclib
             }
         };
 
+        struct SidescanSonarData
+        {
+
+            msr::airlib::TTimePoint time_stamp; // timestamp
+            std::vector<float> point_cloud; // data
+            Pose pose;
+            std::vector<int> segmentation;
+
+            MSGPACK_DEFINE_MAP(time_stamp, point_cloud, pose, segmentation);
+
+            SidescanSonarData()
+            {
+            }
+
+            SidescanSonarData(const msr::airlib::SidescanSonarData& s)
+            {
+                time_stamp = s.time_stamp;
+                point_cloud = s.point_cloud;
+                pose = s.pose;
+                segmentation = s.segmentation;
+            }
+
+            msr::airlib::SidescanSonarData to() const
+            {
+                msr::airlib::SidescanSonarData d;
+
+                d.time_stamp = time_stamp;
+                d.point_cloud = point_cloud;
+                d.pose = pose.to();
+                d.segmentation = segmentation;
+
+                return d;
+            }
+        };
+
         struct ImuData
         {
             msr::airlib::TTimePoint time_stamp;

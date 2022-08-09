@@ -16,6 +16,7 @@
 #include "SimJoyStick/SimJoyStick.h"
 #include "common/EarthCelestial.hpp"
 #include "sensors/lidar/LidarSimple.hpp"
+#include "sensors/sidescansonar/SidescanSonarSimple.hpp"
 #include "sensors/distance/DistanceSimple.hpp"
 
 #include "Weather/WeatherLib.h"
@@ -353,6 +354,8 @@ void ASimModeBase::Tick(float DeltaSeconds)
     updateDebugReport(debug_reporter_);
 
     drawLidarDebugPoints();
+
+    drawSidescanSonarDebugPoints();
 
     drawDistanceSensorDebugPoints();
 
@@ -864,6 +867,72 @@ void ASimModeBase::drawLidarDebugPoints()
     }
 
     lidar_checks_done_ = true;
+}
+
+
+// Draws debug-points on main viewport for Sidescansonar laser hits.
+// Used for debugging only.
+void ASimModeBase::drawSidescanSonarDebugPoints()
+{
+    // Currently we are checking the sensor-collection instead of sensor-settings.
+    // Also using variables to optimize not checking the collection if not needed.
+    if (sidescansonar_checks_done_ && !sidescansonar_draw_debug_points_)
+        return;
+
+    if (getApiProvider() == nullptr)
+        return;
+
+    for (auto& sim_api : getApiProvider()->getVehicleSimApis()) {
+        PawnSimApi* pawn_sim_api = static_cast<PawnSimApi*>(sim_api);
+        std::string vehicle_name = pawn_sim_api->getVehicleName();
+
+        msr::airlib::VehicleApiBase* api = getApiProvider()->getVehicleApi(vehicle_name);
+        if (api != nullptr) {
+            msr::airlib::uint count_sidescansonars = api->getSensors().size(SensorType::SidescanSonar);
+
+            for (msr::airlib::uint i = 0; i < count_sidescansonars; i++) {
+                // TODO: Is it incorrect to assume SidescanSonarSimple here?
+                const msr::airlib::SidescanSonarSimple* sidescansonar =
+                    static_cast<const msr::airlib::SidescanSonarSimple*>(api->getSensors().getByType(SensorType::SidescanSonar, i));
+                if (sidescansonar != nullptr && sidescansonar->getParams().draw_debug_points) {
+                    sidescansonar_draw_debug_points_ = true;
+
+                    msr::airlib::SidescanSonarData sidescansonar_data = sidescansonar->getOutput();
+
+                    if (sidescansonar_data.point_cloud.size() < 3)
+                        return;
+
+                    for (int j = 0; j < sidescansonar_data.point_cloud.size(); j = j + 3) {
+                        Vector3r point(sidescansonar_data.point_cloud[j], sidescansonar_data.point_cloud[j + 1], sidescansonar_data.point_cloud[j + 2]);
+
+                        FVector uu_point;
+
+                        if (sidescansonar->getParams().data_frame == AirSimSettings::kVehicleInertialFrame) {
+                            uu_point = pawn_sim_api->getNedTransform().fromLocalNed(point);
+                        }
+                        else if (sidescansonar->getParams().data_frame == AirSimSettings::kSensorLocalFrame) {
+
+                            Vector3r point_w = VectorMath::transformToWorldFrame(point, sidescansonar_data.pose, true);
+                            uu_point = pawn_sim_api->getNedTransform().fromLocalNed(point_w);
+                        }
+                        else
+                            throw std::runtime_error("Unknown requested data frame");
+
+                        DrawDebugPoint(
+                            this->GetWorld(),
+                            uu_point,
+                            5, // size
+                            FColor::Green,
+                            false, // persistent (never goes away)
+                            0.03 // LifeTime: point leaves a trail on moving object
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    sidescansonar_checks_done_ = true;
 }
 
 // Draw debug-point on main viewport for Distance sensor hit

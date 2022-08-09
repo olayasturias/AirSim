@@ -254,6 +254,10 @@ namespace airlib
         {
         };
 
+        struct SidescanSonarSetting : SensorSetting
+        {
+        };
+
         struct VehicleSetting
         {
             //required
@@ -1295,6 +1299,9 @@ namespace airlib
                 break;
             case SensorBase::SensorType::Lidar:
                 sensor_setting = std::shared_ptr<SensorSetting>(new LidarSetting());
+                break;
+            case SensorBase::SensorType::SidescanSonar:
+                sensor_setting = std::shared_ptr<SensorSetting>(new SidescanSonarSetting());
                 break;
             default:
                 throw std::invalid_argument("Unexpected sensor type");

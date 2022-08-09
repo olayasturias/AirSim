@@ -10,6 +10,7 @@ STRICT_MODE_OFF //todo what does this do?
 #include "common/AirSimSettings.hpp"
 #include "common/common_utils/FileSystem.hpp"
 #include "sensors/lidar/LidarSimpleParams.hpp"
+#include "sensors/sidescansonar/SidescanSonarSimpleParams.hpp"
 #include "ros/ros.h"
 #include "sensors/imu/ImuBase.hpp"
 #include "vehicles/multirotor/api/MultirotorRpcLibClient.hpp"
@@ -122,6 +123,7 @@ class AirsimROSWrapper
     using CameraSetting = msr::airlib::AirSimSettings::CameraSetting;
     using CaptureSetting = msr::airlib::AirSimSettings::CaptureSetting;
     using LidarSetting = msr::airlib::AirSimSettings::LidarSetting;
+    using SidescanSonarSetting = msr::airlib::AirSimSettings::SidescanSonarSetting;
     using VehicleSetting = msr::airlib::AirSimSettings::VehicleSetting;
     using ImageRequest = msr::airlib::ImageCaptureBase::ImageRequest;
     using ImageResponse = msr::airlib::ImageCaptureBase::ImageResponse;
@@ -143,7 +145,9 @@ public:
     // std::vector<ros::CallbackQueue> callback_queues_;
     ros::AsyncSpinner img_async_spinner_;
     ros::AsyncSpinner lidar_async_spinner_;
+    ros::AsyncSpinner sidescansonar_async_spinner_;
     bool is_used_lidar_timer_cb_queue_;
+    bool is_used_sidescansonar_timer_cb_queue_;
     bool is_used_img_timer_cb_queue_;
 
 private:
@@ -169,6 +173,7 @@ private:
         std::vector<SensorPublisher> sensor_pubs;
         // handle lidar seperately for max performance as data is collected on its own thread/callback
         std::vector<SensorPublisher> lidar_pubs;
+        std::vector<SensorPublisher> sidescansonar_pubs;
 
         nav_msgs::Odometry curr_odom;
         sensor_msgs::NavSatFix gps_sensor_msg;
@@ -220,6 +225,7 @@ private:
     void img_response_timer_cb(const ros::TimerEvent& event); // update images from airsim_client_ every nth sec
     void drone_state_timer_cb(const ros::TimerEvent& event); // update drone state from airsim_client_ every nth sec
     void lidar_timer_cb(const ros::TimerEvent& event);
+    void sidescansonar_timer_cb(const ros::TimerEvent& event);
 
     /// ROS subscriber callbacks
     void vel_cmd_world_frame_cb(const airsim_ros_pkgs::VelCmd::ConstPtr& msg, const std::string& vehicle_name);
@@ -270,10 +276,12 @@ private:
     void create_ros_pubs_from_settings_json();
     void append_static_camera_tf(VehicleROS* vehicle_ros, const std::string& camera_name, const CameraSetting& camera_setting);
     void append_static_lidar_tf(VehicleROS* vehicle_ros, const std::string& lidar_name, const msr::airlib::LidarSimpleParams& lidar_setting);
+    void append_static_sidescansonar_tf(VehicleROS* vehicle_ros, const std::string& sidescansonar_name, const msr::airlib::SidescanSonarSimpleParams& sidescansonar_setting);
     void append_static_vehicle_tf(VehicleROS* vehicle_ros, const VehicleSetting& vehicle_setting);
     void set_nans_to_zeros_in_pose(VehicleSetting& vehicle_setting) const;
     void set_nans_to_zeros_in_pose(const VehicleSetting& vehicle_setting, CameraSetting& camera_setting) const;
     void set_nans_to_zeros_in_pose(const VehicleSetting& vehicle_setting, LidarSetting& lidar_setting) const;
+    void set_nans_to_zeros_in_pose(const VehicleSetting& vehicle_setting, SidescanSonarSetting& sidescansonar_setting) const;
 
     /// utils. todo parse into an Airlib<->ROS conversion class
     tf2::Quaternion get_tf2_quat(const msr::airlib::Quaternionr& airlib_quat) const;
@@ -289,6 +297,7 @@ private:
     airsim_ros_pkgs::Altimeter get_altimeter_msg_from_airsim(const msr::airlib::BarometerBase::Output& alt_data) const;
     sensor_msgs::Range get_range_from_airsim(const msr::airlib::DistanceSensorData& dist_data) const;
     sensor_msgs::PointCloud2 get_lidar_msg_from_airsim(const msr::airlib::LidarData& lidar_data, const std::string& vehicle_name, const std::string& sensor_name) const;
+    sensor_msgs::PointCloud2 get_sidescansonar_msg_from_airsim(const msr::airlib::SidescanSonarData& sidescansonar_data, const std::string& vehicle_name, const std::string& sensor_name) const;
     sensor_msgs::NavSatFix get_gps_msg_from_airsim(const msr::airlib::GpsBase::Output& gps_data) const;
     sensor_msgs::MagneticField get_mag_msg_from_airsim(const msr::airlib::MagnetometerBase::Output& mag_data) const;
     airsim_ros_pkgs::Environment get_environment_msg_from_airsim(const msr::airlib::Environment::State& env_data) const;
@@ -340,11 +349,13 @@ private:
     // seperate busy connections to airsim, update in their own thread
     msr::airlib::RpcLibClientBase airsim_client_images_;
     msr::airlib::RpcLibClientBase airsim_client_lidar_;
+    msr::airlib::RpcLibClientBase airsim_client_sidescansonar_;
 
     // todo not sure if async spinners shuold be inside this class, or should be instantiated in airsim_node.cpp, and cb queues should be public
     // todo for multiple drones with multiple sensors, this won't scale. make it a part of VehicleROS?
     ros::CallbackQueue img_timer_cb_queue_;
     ros::CallbackQueue lidar_timer_cb_queue_;
+    ros::CallbackQueue sidescansonar_timer_cb_queue_;
 
     std::mutex drone_control_mutex_;
 
@@ -372,6 +383,7 @@ private:
     ros::Timer airsim_img_response_timer_;
     ros::Timer airsim_control_update_timer_;
     ros::Timer airsim_lidar_update_timer_;
+    ros::Timer airsim_sidescansonar_update_timer_;
 
     typedef std::pair<std::vector<ImageRequest>, std::string> airsim_img_request_vehicle_name_pair;
     std::vector<airsim_img_request_vehicle_name_pair> airsim_img_request_vehicle_name_pair_vec_;

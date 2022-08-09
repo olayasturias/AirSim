@@ -10,6 +10,7 @@ Each sensor is associated with a integer enum specifying its sensor type.
 * Magnetometer = 4
 * Distance Sensor = 5
 * Lidar = 6
+* SidescanSonar = 7
 
 **Note** :  Cameras are configured differently than the other sensors and do not have an enum associated with them.    Look at [general settings](settings.md) and [image API](image_apis.md) for camera config and API.
 
